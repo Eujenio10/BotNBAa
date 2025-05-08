@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NBA Stats Bot Magico</title>
+  <link rel="icon" href="../mago.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #b3e0ff 0%, #4f8cff 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Papyrus', 'Arial', sans-serif;
+      color: #222;
+    }
+    .nba-header {
+      background: linear-gradient(90deg, #4f8cff 60%, #ffd700 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px #0002;
+      border-radius: 0 0 30px 30px;
+      padding: 2rem 1rem 1rem 1rem;
+      text-align: center;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    .nba-header .fa-hat-wizard {
+      color: #ffd700;
+      text-shadow: 0 0 10px #fff, 0 0 20px #ffd700;
+      font-size: 2.5rem;
+      margin-right: 0.5rem;
+    }
+    .nba-header .fa-basketball {
+      color: #ff6f00;
+      text-shadow: 0 0 10px #fff, 0 0 20px #ff6f00;
+      font-size: 2.5rem;
+      margin-left: 0.5rem;
+    }
+    .nba-header h1 {
+      font-family: 'Papyrus', 'Segoe UI', cursive;
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.2em;
+      text-shadow: 0 0 10px #fff, 0 0 20px #4f8cff;
+    }
+    .nba-header .subtitle {
+      font-size: 1.2rem;
+      color: #fff;
+      text-shadow: 0 0 8px #4f8cff;
+    }
+    .nba-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #0002;
+      margin-bottom: 2rem;
+      padding: 1.5rem 1.2rem;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #4f8cff33;
+    }
+    .nba-card .card-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #4f8cff;
+      margin-bottom: 0.7rem;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px #b3e0ff;
+    }
+    .nba-card .fa {
+      color: #ffd700;
+      margin-right: 0.5rem;
+      text-shadow: 0 0 8px #ffd70099;
+    }
+    .nba-card .magic-glow {
+      animation: glow 1.5s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 10px #ffd70055; }
+      to   { box-shadow: 0 0 30px #ffd700cc; }
+    }
+    .loader {
+      display: inline-block;
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 4px solid #4f8cff;
+      border-top: 4px solid #ffd700;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .nba-btn {
+      background: linear-gradient(90deg, #4f8cff 60%, #ffd700 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #4f8cff44;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nba-btn:hover {
+      background: linear-gradient(90deg, #ffd700 60%, #4f8cff 100%);
+      color: #222;
+    }
+    .nba-section {
+      margin-bottom: 2.5rem;
+    }
+    .nba-footer {
+      text-align: center;
+      color: #fff;
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      text-shadow: 0 0 8px #4f8cff;
+    }
+    .nba-logo {
+      width: 48px;
+      height: 48px;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+      filter: drop-shadow(0 0 8px #fff) drop-shadow(0 0 12px #4f8cff);
+    }
+    .magic-emoji {
+      font-size: 1.5rem;
+      margin-left: 0.3rem;
+      margin-right: 0.3rem;
+      filter: drop-shadow(0 0 6px #ffd700);
+    }
+    .nba-card pre {
+      background: #e3f2fd;
+      border-radius: 8px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      color: #222;
+      max-height: 350px;
+      overflow: auto;
+    }
+    .nba-card .search-box {
+      max-width: 350px;
+      margin-bottom: 1rem;
+    }
+    .nba-card .suggestion-list {
+      background: #fff;
+      border: 1px solid #4f8cff55;
+      border-radius: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+      left: 0;
+      top: 100%;
+      box-shadow: 0 2px 8px #4f8cff22;
+    }
+    .nba-card .suggestion-list li {
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
+    .nba-card .suggestion-list li:hover {
+      background: #b3e0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="nba-header">
+    <i class="fa-solid fa-hat-wizard magic-emoji"></i>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/03/NBA_logo.svg" class="nba-logo" alt="NBA Logo">
+    <h1>NBA Stats Bot <span class="magic-emoji">✨</span></h1>
+    <div class="subtitle">Il tuo assistente magico per il basket NBA</div>
+    <i class="fa-solid fa-basketball magic-emoji"></i>
+  </div>
+
+  <div class="container">
+    <!-- Sezione Infortunati -->
+    <div class="nba-card nba-section magic-glow">
+      <div class="card-title"><i class="fa-solid fa-user-injured"></i> Lista Infortunati</div>
+      <button class="nba-btn mb-2" onclick="loadInjured()">Carica dati</button>
+      <div id="injured-loader" style="display:none"><div class="loader"></div></div>
+      <div id="injured-result"></div>
+    </div>
+
+    <!-- Sezione Calendario Partite -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-calendar-days"></i> Calendario Partite</div>
+      <button class="nba-btn mb-2" onclick="loadGames()">Carica dati</button>
+      <div id="games-loader" style="display:none"><div class="loader"></div></div>
+      <div id="games-result"></div>
+    </div>
+
+    <!-- Sezione Statistiche Difensive Generali -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Statistiche Difensive Generali</div>
+      <div class="mb-2">
+        <button class="nba-btn" onclick="loadDefensive('points')">Punti concessi</button>
+        <button class="nba-btn" onclick="loadDefensive('rebounds')">Rimbalzi concessi</button>
+      </div>
+      <div id="defensive-loader" style="display:none"><div class="loader"></div></div>
+      <div id="defensive-result"></div>
+    </div>
+
+    <!-- Sezione Statistiche Difensive per Ruolo -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-people-group"></i> Statistiche Difensive per Ruolo</div>
+      <div class="mb-2">
+        <select id="role-select" class="form-select d-inline-block w-auto">
+          <option value="PG">PG</option>
+          <option value="SG">SG</option>
+          <option value="SF">SF</option>
+          <option value="PF">PF</option>
+          <option value="C">C</option>
+        </select>
+        <select id="stat-select" class="form-select d-inline-block w-auto">
+          <option value="points">Punti</option>
+          <option value="rebounds">Rimbalzi</option>
+          <option value="assists">Assist</option>
+          <option value="steals">Palle Rubate</option>
+          <option value="blocks">Stoppate</option>
+          <option value="threes">Tiri da 3</option>
+        </select>
+        <button class="nba-btn" onclick="loadDefRole()">Carica dati</button>
+      </div>
+      <div id="defrole-loader" style="display:none"><div class="loader"></div></div>
+      <div id="defrole-result"></div>
+    </div>
+
+    <!-- Sezione Statistiche Giocatore -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-user-astronaut"></i> Statistiche Giocatore</div>
+      <div class="search-box position-relative">
+        <input type="text" id="player-search" class="form-control" placeholder="Cerca giocatore..." autocomplete="off">
+        <ul id="suggestion-list" class="suggestion-list" style="display:none"></ul>
+      </div>
+      <button class="nba-btn mb-2" onclick="loadPlayerStats()">Cerca</button>
+      <div id="player-loader" style="display:none"><div class="loader"></div></div>
+      <div id="player-result"></div>
+    </div>
+
+    <!-- Sezione Props -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-crystal-ball"></i> Props</div>
+      <button class="nba-btn mb-2" onclick="loadProps()">Carica dati</button>
+      <div id="props-loader" style="display:none"><div class="loader"></div></div>
+      <div id="props-result"></div>
+    </div>
+
+    <!-- Sezione Trend Giocatori -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-chart-line"></i> Trend Giocatori</div>
+      <button class="nba-btn mb-2" onclick="loadTrends()">Carica dati</button>
+      <div id="trends-loader" style="display:none"><div class="loader"></div></div>
+      <div id="trends-result"></div>
+    </div>
+
+    <!-- Sezione Curiosità Giocatori -->
+    <div class="nba-card nba-section">
+      <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Curiosità Giocatori</div>
+      <button class="nba-btn mb-2" onclick="loadCuriosita()">Carica dati</button>
+      <div id="curiosita-loader" style="display:none"><div class="loader"></div></div>
+      <div id="curiosita-result"></div>
+    </div>
+
+  </div>
+
+  <div class="nba-footer">
+    <span class="magic-emoji">✨</span> NBA Stats Bot Magico - Powered by Flask & Render <span class="magic-emoji">🪄</span>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API = ""; // Vuoto = stesso dominio
+
+    // Loader helpers
+    function showLoader(id) { document.getElementById(id).style.display = "block"; }
+    function hideLoader(id) { document.getElementById(id).style.display = "none"; }
+
+    // Infortunati
+    function loadInjured() {
+      showLoader('injured-loader');
+      fetch(API + '/api/injured_players').then(r => r.json()).then(data => {
+        hideLoader('injured-loader');
+        if (!data || Object.keys(data).length === 0) {
+          document.getElementById('injured-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        let html = '';
+        for (const team in data) {
+          html += `<b>${team}</b><ul>`;
+          data[team].forEach(p => {
+            html += `<li>${p.name} <span class="badge bg-warning text-dark">${p.status}</span></li>`;
+          });
+          html += '</ul>';
+        }
+        document.getElementById('injured-result').innerHTML = html;
+      }).catch(e => {
+        hideLoader('injured-loader');
+        document.getElementById('injured-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Calendario partite
+    function loadGames() {
+      showLoader('games-loader');
+      fetch(API + '/api/upcoming_games').then(r => r.json()).then(data => {
+        hideLoader('games-loader');
+        if (!data) {
+          document.getElementById('games-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        if (typeof data === 'string') {
+          document.getElementById('games-result').innerHTML = `<pre>${data}</pre>`;
+          return;
+        }
+        let html = '';
+        for (const date in data) {
+          html += `<b>${date}</b><ul>`;
+          data[date].forEach(game => {
+            html += `<li>${game}</li>`;
+          });
+          html += '</ul>';
+        }
+        document.getElementById('games-result').innerHTML = html;
+      }).catch(e => {
+        hideLoader('games-loader');
+        document.getElementById('games-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Statistiche difensive generali
+    function loadDefensive(type) {
+      showLoader('defensive-loader');
+      let by_points = (type === 'points');
+      fetch(API + '/api/defensive_ranking?by_points=' + by_points).then(r => r.json()).then(data => {
+        hideLoader('defensive-loader');
+        if (!data) {
+          document.getElementById('defensive-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        if (typeof data === 'string') {
+          document.getElementById('defensive-result').innerHTML = `<pre>${data}</pre>`;
+          return;
+        }
+        let html = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        document.getElementById('defensive-result').innerHTML = html;
+      }).catch(e => {
+        hideLoader('defensive-loader');
+        document.getElementById('defensive-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Statistiche difensive per ruolo
+    function loadDefRole() {
+      showLoader('defrole-loader');
+      const role = document.getElementById('role-select').value;
+      const stat = document.getElementById('stat-select').value;
+      fetch(API + '/api/defense_vs_position').then(r => r.json()).then(data => {
+        hideLoader('defrole-loader');
+        if (!data || !data[role] || !data[role][stat]) {
+          document.getElementById('defrole-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        let html = `<b>${stat.toUpperCase()} concessi ai ${role}</b><ul>`;
+        for (const team in data[role][stat]) {
+          html += `<li>${team}: <b>${data[role][stat][team]}</b></li>`;
+        }
+        html += '</ul>';
+        document.getElementById('defrole-result').innerHTML = html;
+      }).catch(e => {
+        hideLoader('defrole-loader');
+        document.getElementById('defrole-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Statistiche giocatore (con ricerca)
+    let playerSuggestions = [];
+    document.getElementById('player-search').addEventListener('input', function() {
+      const val = this.value.trim();
+      if (val.length < 2) {
+        document.getElementById('suggestion-list').style.display = 'none';
+        return;
+      }
+      // Per demo: suggerimenti statici. In produzione, puoi fare una API per i nomi.
+      // Qui puoi popolare con una lista di nomi noti o chiamare una API.
+      // Esempio statico:
+      playerSuggestions = ['LeBron James','Stephen Curry','Kevin Durant','Luka Doncic','Giannis Antetokounmpo','Jayson Tatum','Joel Embiid','Nikola Jokic','Kyrie Irving','James Harden'];
+      const filtered = playerSuggestions.filter(p => p.toLowerCase().includes(val.toLowerCase()));
+      const ul = document.getElementById('suggestion-list');
+      ul.innerHTML = '';
+      filtered.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p;
+        li.onclick = () => {
+          document.getElementById('player-search').value = p;
+          ul.style.display = 'none';
+        };
+        ul.appendChild(li);
+      });
+      ul.style.display = filtered.length ? 'block' : 'none';
+    });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search-box')) {
+        document.getElementById('suggestion-list').style.display = 'none';
+      }
+    });
+    function loadPlayerStats() {
+      const player = document.getElementById('player-search').value.trim();
+      if (!player) {
+        document.getElementById('player-result').innerHTML = '<div class="text-danger">Inserisci un nome</div>';
+        return;
+      }
+      showLoader('player-loader');
+      fetch(API + '/api/player_stats?player=' + encodeURIComponent(player)).then(r => r.json()).then(data => {
+        hideLoader('player-loader');
+        if (!data) {
+          document.getElementById('player-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        document.getElementById('player-result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      }).catch(e => {
+        hideLoader('player-loader');
+        document.getElementById('player-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Props (placeholder, da implementare API se non esiste)
+    function loadProps() {
+      showLoader('props-loader');
+      fetch(API + '/api/props').then(r => r.json()).then(data => {
+        hideLoader('props-loader');
+        if (!data) {
+          document.getElementById('props-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        document.getElementById('props-result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      }).catch(e => {
+        hideLoader('props-loader');
+        document.getElementById('props-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Trend Giocatori (placeholder, da implementare API se non esiste)
+    function loadTrends() {
+      showLoader('trends-loader');
+      fetch(API + '/api/trends').then(r => r.json()).then(data => {
+        hideLoader('trends-loader');
+        if (!data) {
+          document.getElementById('trends-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        document.getElementById('trends-result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      }).catch(e => {
+        hideLoader('trends-loader');
+        document.getElementById('trends-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+
+    // Curiosità Giocatori (placeholder, da implementare API se non esiste)
+    function loadCuriosita() {
+      showLoader('curiosita-loader');
+      fetch(API + '/api/curiosita').then(r => r.json()).then(data => {
+        hideLoader('curiosita-loader');
+        if (!data) {
+          document.getElementById('curiosita-result').innerHTML = '<div class="text-danger">Nessun dato trovato</div>';
+          return;
+        }
+        document.getElementById('curiosita-result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+      }).catch(e => {
+        hideLoader('curiosita-loader');
+        document.getElementById('curiosita-result').innerHTML = '<div class="text-danger">Errore: ' + e + '</div>';
+      });
+    }
+  </script>
+</body>
+</html> 
