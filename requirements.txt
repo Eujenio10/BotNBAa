@@ -1,0 +1,10 @@
+flask
+flask-cors
+nba_api
+requests
+beautifulsoup4
+pandas
+selenium
+webdriver-manager
+pytz
+Pillow 
