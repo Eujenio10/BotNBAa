@@ -1,12 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import os
 from nba_stats_appv import (
     get_injured_players, get_upcoming_games, get_team_defensive_ranking,
     get_player_stats, get_player_last_games, get_defense_vs_position
 )
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app)
+
+@app.route("/")
+def index():
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.route("/api/injured_players")
 def api_injured_players():
@@ -63,10 +68,6 @@ def api_defense_vs_position():
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@app.route("/")
-def index():
-    return "NBA Stats Bot API attiva!"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000) 
